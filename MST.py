@@ -9,13 +9,11 @@ class GraphApp:
         self.master = master
         self.master.title("Graph Visualization with MST Algorithms")
         self.graph = nx.Graph()
-        self.mst_edges = []  # Store MST edges for visualization
-        self.mst_nodes = set()  # Store MST nodes for visualization
-        
-        # Create a Matplotlib figure for graph visualization
+        self.mst_edges = []  
+        self.mst_nodes = set() 
+    
         self.fig, self.ax = plt.subplots(figsize=(8, 6))
 
-        # Node Input
         self.node_label = tk.Label(master, text="Node ID:")
         self.node_label.pack()
         self.node_entry = tk.Entry(master)
@@ -23,7 +21,6 @@ class GraphApp:
         self.add_node_button = tk.Button(master, text="Add Node", command=self.add_node)
         self.add_node_button.pack()
 
-        # Edge Input
         self.source_label = tk.Label(master, text="Source Node:")
         self.source_label.pack()
         self.source_entry = tk.Entry(master)
@@ -42,7 +39,6 @@ class GraphApp:
         self.add_edge_button = tk.Button(master, text="Add Edge", command=self.add_edge)
         self.add_edge_button.pack()
 
-        # Minimum Spanning Tree Algorithms
         self.run_kruskal_button = tk.Button(master, text="Run Kruskal's Algorithm", command=self.run_kruskal)
         self.run_kruskal_button.pack()
 
@@ -52,11 +48,9 @@ class GraphApp:
         self.run_boruvka_button = tk.Button(master, text="Run Borůvka's Algorithm", command=self.run_boruvka)
         self.run_boruvka_button.pack()
 
-        # Clear Graph
         self.clear_button = tk.Button(master, text="Clear Graph", command=self.clear_graph)
         self.clear_button.pack()
 
-        # Initial graph visualization
         self.visualize_graph()
 
     def add_node(self):
@@ -64,7 +58,7 @@ class GraphApp:
         if node_id:
             if node_id not in self.graph.nodes:
                 self.graph.add_node(node_id)
-                self.visualize_graph()  # Update visualization
+                self.visualize_graph()
             else:
                 messagebox.showwarning("Warning", f"Node '{node_id}' already exists.")
             self.node_entry.delete(0, tk.END)
@@ -80,7 +74,7 @@ class GraphApp:
                 if source in self.graph.nodes and target in self.graph.nodes:
                     self.graph.add_edge(source, target, weight=weight)
                     messagebox.showinfo("Success", f"Edge '{source} - {target}' with weight {weight} added.")
-                    self.visualize_graph()  # Update visualization
+                    self.visualize_graph() 
                 else:
                     messagebox.showwarning("Warning", "Both nodes must exist.")
             except ValueError:
@@ -114,67 +108,62 @@ class GraphApp:
         self.animate_mst(mst_edges, "Borůvka's Algorithm")
 
     def animate_mst(self, mst_edges, algorithm_name):
-        self.ax.clear()  # Clear the previous graph
-        self.visualize_graph()  # Show the original graph
+        self.ax.clear() 
+        self.visualize_graph() 
         plt.title(f"Animating {algorithm_name} - Step by Step")
-        plt.draw()  # Draw the updated graph
+        plt.draw() 
 
-        self.mst_edges = []  # Reset MST edges for animation
-        self.mst_nodes = set()  # Reset MST nodes for animation
+        self.mst_edges = []  
+        self.mst_nodes = set()
         for u, v, d in mst_edges:
-            self.mst_edges.append((u, v))  # Store MST edges
-            self.mst_nodes.update([u, v])  # Store MST nodes
-            self.graph.add_edge(u, v, weight=d['weight'])  # Add edge to the MST
-            self.visualize_graph()  # Update the visualization
-            time.sleep(1)  # Pause for animation effect
+            self.mst_edges.append((u, v)) 
+            self.mst_nodes.update([u, v])
+            self.graph.add_edge(u, v, weight=d['weight'])
+            self.visualize_graph() 
+            time.sleep(1) 
 
-        # Display the final MST
-        self.visualize_graph()  # Final visualization
+        self.visualize_graph() 
 
     def visualize_graph(self):
-        self.ax.clear()  # Clear the previous graph
-        pos = nx.spring_layout(self.graph, seed=42)  # Define the layout for the graph with fixed seed for consistency
+        self.ax.clear()  
+        pos = nx.spring_layout(self.graph, seed=42)  
 
-        # Draw edges with specific colors
         edges = self.graph.edges()
         
         edge_colors = ['#90EE90' if (u, v) in self.mst_edges or (v, u) in self.mst_edges else 'black' for u, v in edges]
         nx.draw_networkx_edges(self.graph, pos, edge_color=edge_colors, ax=self.ax, width=2)
 
-        # Draw the entire graph with default edge color
         nx.draw(self.graph, pos, with_labels=True, node_size=700, node_color='lightblue', ax=self.ax, width=2)
 
-        # Draw nodes with specific colors
         node_colors = ['#90EE90' if node in self.mst_nodes else 'lightblue' for node in self.graph.nodes()]
         nx.draw_networkx_nodes(self.graph, pos, node_color=node_colors, ax=self.ax, node_size=700)
 
         edge_labels = nx.get_edge_attributes(self.graph, 'weight')
-        # Draw edge labels with a slight offset for better visibility
         nx.draw_networkx_edge_labels(
             self.graph,
             pos,
             edge_labels=edge_labels,
             ax=self.ax,
-            label_pos=0.5,  # Center the label on the edge
+            label_pos=0.5,  
             font_color='black',
             font_size=10,
-            verticalalignment='center'  # Vertical alignment for better placement
+            verticalalignment='center' 
         )
 
         self.ax.set_title("Graph Visualization")
-        plt.draw()  # Draw the updated graph
-        plt.pause(0.1)  # Pause for a moment to update the plot
+        plt.draw()
+        plt.pause(0.1) 
 
     def clear_graph(self):
         self.graph.clear()
-        self.mst_edges.clear()  # Clear MST edges
-        self.mst_nodes.clear()  # Clear MST nodes
+        self.mst_edges.clear()  
+        self.mst_nodes.clear()  
         messagebox.showinfo("Success", "Graph cleared.")
-        self.visualize_graph()  # Update visualization
+        self.visualize_graph() 
 
 if __name__ == "__main__":
     root = tk.Tk()
     app = GraphApp(root)
-    plt.ion()  # Turn on interactive mode
-    plt.show()  # Show the matplotlib figure
+    plt.ion() 
+    plt.show()
     root.mainloop()
